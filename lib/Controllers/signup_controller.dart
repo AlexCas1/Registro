@@ -28,7 +28,7 @@ class SignupController {
     if (formKey.currentState!.validate()) {
       isLoading.value = true;
 
-      bool exito = await _dbHelper.registrarUsuario(
+      bool exito = await _dbHelper.registerUsers(
         nameController.text.trim(),
         emailController.text.trim(),
         passwordController.text, // En un entorno real, esto debería estar encriptado
@@ -61,4 +61,5 @@ class SignupController {
     isConfirmPasswordObscured.dispose();
     isLoading.dispose();
   }
+
 }
