@@ -1,34 +1,51 @@
-import 'package:mysql1/mysql1.dart';
+import 'package:postgres/postgres.dart';
 
 class DatabaseHelper {
-  // Configura tus credenciales de MySQL Workbench aquí
-  final String _host = 'localhost'; // Usa '10.0.2.2' si usas emulador Android
-  final int _port = 3306;
-  final String _user = 'root'; // Tu usuario de MySQL
-  final String _password = 'tu_password'; // Tu contraseña de MySQL
-  final String _db = 'tu_base_de_datos'; // El nombre del schema en Workbench
 
-  Future<MySqlConnection> getConnection() async {
-    final settings = ConnectionSettings(
-      host: _host,
-      port: _port,
-      user: _user,
-      password: _password,
-      db: _db,
+  final String _host = 'ep-proud-sunset-aq28evwm-pooler.c-8.us-east-1.aws.neon.tech';
+  final String _username = 'neondb_owner';
+  final String _password = 'npg_Xfko4EjmuN1I';
+  final String _database = 'neondb';
+
+  //Funcion para obtener la conexion.
+  Future<Connection> getConnection() async {
+
+    return await Connection.open(
+      Endpoint(
+          host: _host,
+          database: _database,
+          username: _username,
+          password: _password,
+      ),
+
+      settings: ConnectionSettings(
+        sslMode: SslMode.require,
+      ),
+
     );
-    return await MySqlConnection.connect(settings);
   }
 
-  Future<bool> registrarUsuario(String nombre, String correo, String password) async {
-    MySqlConnection? conn;
+  Future<bool> registerUsers
+      (String name, String email, String password) async {
+
+    Connection? conn;
+
     try {
       conn = await getConnection();
-      // Asegúrate de tener una tabla 'usuarios' con columnas: nombre, correo, password
-      var result = await conn.query(
-        'INSERT INTO usuarios (nombre, correo, password) VALUES (?, ?, ?)',
-        [nombre, correo, password],
+
+      await conn.execute(
+        Sql.named(
+          "INSERT INTO users (name, email, password) VALUES (@name, @email, @password)"
+        ),
+
+        parameters: {
+          'name': name,
+          'email': email,
+          'password': password,
+        },
+
       );
-      return result.insertId != null;
+      return true;
     } catch (e) {
       print('Error de base de datos: $e');
       return false;
@@ -36,4 +53,5 @@ class DatabaseHelper {
       await conn?.close();
     }
   }
+
 }
